@@ -1,0 +1,153 @@
+//10. В головном модуле объявить n матриц. Элементами матрицы являются строки знаков. Все строки и столбцы матрицы, в которых хотя бы один из ее элементов совпадают со строкой введенной из клавиатуры, удалить.
+//Полученную матрицу уплотнить. Память под матрицы выделять динамически. Программу разбить на функции
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+char*** randMatrix(int count);
+int checkMatrix(char*** matrix, char* line, int countOfSym);
+void compactMatrix(char*** matrix, char* line, int countOfSym);
+char* del(char* str, int countOfSym);
+char** delMatrix(char** matrix, int size, int countOfSym);
+int equal(const char* line1, const char* line2, int size);
+
+int main() {
+int count = 0;
+int sizeOfLine = 0;
+char* line;
+int match = 0;
+printf("Enter count of matrix: ");
+while (!scanf_s("%d", &count)) rewind(stdin);
+
+printf("Enter size of line of signs: ");
+while (!scanf_s("%d", &sizeOfLine)) rewind(stdin);
+line = (char*)calloc(sizeOfLine, sizeof(char));
+
+printf("Enter line of signs(size = %d): ", sizeOfLine);
+rewind(stdin);
+for (int i = 0; i < sizeOfLine; ++i) {
+line[i] = getchar();
+}
+//fgets(line, sizeOfLine, stdin);
+
+printf("Matrices:\n");
+char**** matrices = (char****)calloc(count, sizeof(char***));
+srand(time(NULL));
+for (int i = 0; i < count; ++i) {
+matrices[i] = randMatrix(sizeOfLine);
+}
+
+for (int i = 0; i < count; ++i) {
+match += checkMatrix(matrices[i], line, sizeOfLine);
+}
+printf("Matches found: %d\n", match);
+
+printf("Compact matrices:\n");
+for (int i = 0; i < count; ++i) {
+compactMatrix(matrices[i], line, sizeOfLine);
+}
+
+free(line);
+free(matrices);
+return 0;
+}
+
+char*** randMatrix(int countOfSym) {
+char*** matrix = (char***)calloc(3, sizeof(char**));
+char signs[5] = { '+', '-', '=', '/', '*' };
+
+for (int i = 0; i < 3; ++i) {
+matrix[i] = (char**)calloc(3, sizeof(char*));
+for (int j = 0; j < 3; ++j) {
+matrix[i][j] = (char*)calloc(countOfSym, sizeof(char));
+for (int k = 0; k < countOfSym; ++k) {
+matrix[i][j][k] = signs[rand() % 5];
+printf("%c", matrix[i][j][k]);
+}
+//matrix[i][j][countOfSym - 1] = '\n';
+printf(" ");
+}
+printf("\n");
+}
+printf("\n");
+return matrix;
+}
+
+int checkMatrix(char*** matrix, char* line, int countOfSym) {
+int match = 0;
+for (int i = 0; i < 3; ++i) {
+for (int j = 0; j < 3; ++j) {
+if (equal(matrix[i][j], line, countOfSym)) ++match;
+}
+}
+return match;
+}
+
+void compactMatrix(char*** matrix, char* line, int countOfSym) {
+char** check = (char**)calloc(3, sizeof(char));
+for (int i = 0; i < 3; ++i) {
+check[i] = (char*)calloc(3, sizeof(char));
+for (int j = 0; j < 3; ++j) {
+check[i][j] = 'b';
+}
+}
+for (int i = 0; i < 3; ++i) {
+for (int j = 0; j < 3; ++j) {
+if (equal(matrix[i][j], line, countOfSym)) {
+check[i][j] = 'a';
+}
+}
+}
+for (int i = 0; i < 3; ++i) {
+for (int j = 0; j < 3; ++j) {
+if (check[i][j] == 'a') {
+printf("delMatrix at [%d]\n", i);
+matrix[i] = delMatrix(matrix[i], 3, countOfSym);
+for (int h = 0; h < 3; ++h) {
+if (h == i) continue;
+printf("del at [%d, %d]\n", h, i);
+if (matrix[h][j] != NULL) matrix[h][j] = del(matrix[h][j], countOfSym);
+//matrix[i][j] = del(matrix[i][j], countOfSym);
+}
+}
+}
+}
+
+for (int i = 0; i < 3; ++i) {
+for (int j = 0; j < 3; ++j) {
+for (int k = 0; k < countOfSym; ++k) {
+if (matrix[i][j][k] != ' ') printf("%c", matrix[i][j][k]);
+}
+printf(" ");
+}
+printf("\n");
+}
+printf("\n");
+}
+
+char* del(char* str, int countOfSym) {
+for (int i = 0; i < countOfSym; ++i) {
+//if (str[i] == ex) continue;
+//if(equal(str[i], ex, countOfSym)) continue;
+str[i] = ' ';
+}
+return str;
+}
+
+char** delMatrix(char** matrix, int size, int countOfSym) {
+for (int i = 0; i < size; i++) {
+for (int j = 0; j < countOfSym; j++) {
+//if (matrix[i][j] == ex) continue;
+//if(equal(matrix[i][j], ex, countOfSym)) continue;
+matrix[i][j] = ' ';
+}
+}
+return matrix;
+}
+
+int equal(const char* line1, const char* line2, int size) {
+for (int i = 0; i < size; ++i) if
+ 
+(line1[i] != line2[i]) return 0;
+return 1;
+}
